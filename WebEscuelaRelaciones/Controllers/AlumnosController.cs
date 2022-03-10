@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebEscuelaRelaciones.Data;
 using WebEscuelaRelaciones.Models;
+using WebEscuelaRelaciones.Paginacion;
 
 namespace WebEscuelaRelaciones.Controllers
 {
@@ -28,13 +29,36 @@ namespace WebEscuelaRelaciones.Controllers
         */
 
         //INDEX QUE MUESTRA UN LISTADO ORDENADOR
-        public async Task<IActionResult> Index(string sortOrder)
+        //El parametro searchString corresponde al name recibido qeu se llama SearchString
+        //Fijarse que es el mismo nombre que el name pero con la primera letra en minúsculas
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+                if (searchString != null)
+                {
+                    pageNumber = 1;
+                }
+                else
+                {
+                    searchString = currentFilter;
+                }
+            ViewData["CurrentFilter"] = searchString;
+
             //SELECCIONA TODOS LOS REGISTROS DE ALUMNOS
             var alumnos = from s in _context.Alumnos
                            select s;
+
+            //para el cuadro de busqueda
+            //Hace  un listado con los alumnos que el nombre o apellido contengan
+            //el texto introducido a buscar
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                alumnos = alumnos.Where(s => s.Apellido.Contains(searchString)
+                                       || s.Nombre.Contains(searchString));
+            }
+            
             switch (sortOrder)
             {
                 case "name_desc":
@@ -50,7 +74,10 @@ namespace WebEscuelaRelaciones.Controllers
                     alumnos = alumnos.OrderBy(s => s.Apellido);
                     break;
             }
-            return View(await alumnos.AsNoTracking().ToListAsync());
+            int pageSize = 3;
+            return View(await Paginacion.ListaPaginacion<Alumno>.CreateAsync(alumnos.AsNoTracking(), pageNumber ?? 1, pageSize));
+
+            //return View(await alumnos.AsNoTracking().ToListAsync());
         }
 
 

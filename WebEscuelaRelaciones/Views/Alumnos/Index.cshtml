@@ -1,4 +1,6 @@
-﻿@model IEnumerable<WebEscuelaRelaciones.Models.Alumno>
+﻿@using WebEscuelaRelaciones.Paginacion
+<!--model IEnumerable<WebEscuelaRelaciones.Models.Alumno>-->
+@model ListaPaginacion<WebEscuelaRelaciones.Models.Alumno>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,23 +9,39 @@
 <h1>Index</h1>
 
 <p>
-    <a class="btn btn-success" asp-action="Create">Create New</a>
+    <a class="btn btn-dark" asp-action="Create">Crear Alumno</a>
 </p>
+
+<!--Formulario con el cuadro de busqueda-->
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Buscar por nombre: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Buscar" class="btn btn-primary" /> |
+            <a class="btn btn-success" asp-action="Index">Volver</a>
+        </p>
+    </div>
+</form>
+
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nombre)
+                <!-- arroba Html.DisplayNameFor(model => model.Nombre)-->
+                Nombre
             </th>
             <th>
                 <!--arroba Html.DisplayNameFor(model => model.Apellido)-->
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">@Html.DisplayNameFor(model => model.Apellido)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Apellidos</a>
             </th>
             <th>
                 <!--arroba Html.DisplayNameFor(model => model.FechaInscripcion)-->
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.FechaInscripcion)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Fecha Inscripción</a>
+
             </th>
-            <th style="border:2px solid black" class="text-center">Acciones</th>
+            <th class="text-center">Acciones</th>
+            <!--<th style="border:2px solid black" class="text-center">Acciones</th>-->
         </tr>
     </thead>
     <tbody>
@@ -38,7 +56,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.FechaInscripcion)
             </td>
-            <td>
+            <td class="text-center">
                 <a class="btn btn-success" asp-action="Edit" asp-route-id="@item.AlumnoID">Editar</a> |
                 <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.AlumnoID">Detalles</a> |
                 <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.AlumnoID">Eliminar</a>
@@ -48,6 +66,27 @@
     </tbody>
 </table>
 
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
+
+
 <p>
-    <a class="btn btn-success" asp-controller="Home" asp-action="Index">Volver</a>
+    <a class="btn btn-dark" asp-controller="Home" asp-action="Index">Volver</a>
 </p>
