@@ -21,10 +21,25 @@ namespace WebEscuelaRelaciones.Controllers
         }
 
         // GET: Cursos
-        public async Task<IActionResult> Index()
+                public async Task<IActionResult> Index()
+                {
+                    return View(await _context.Cursos.ToListAsync());
+                }
+        
+
+/*        public async Task<IActionResult> Index(int? pageNumber)
         {
-            return View(await _context.Cursos.ToListAsync());
+            //SELECCIONA TODOS LOS REGISTROS DE ALUMNOS
+            var cursos = from s in _context.Cursos
+                          select s;
+
+
+            int pageSize = 3;
+            return View(await Paginacion.ListaPaginacion<Curso>.CreateAsync(cursos.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
+*/
+
+
 
         // GET: Cursos/Details/5
         public async Task<IActionResult> Details(int? id)
